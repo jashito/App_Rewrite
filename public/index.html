@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redactor Corporativo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Redactor Corporativo</h1>
+      <p class="subtitle">Prueba rápida del endpoint <code>POST /rewrite</code>.</p>
+
+      <label for="inputText">Texto a reescribir</label>
+      <textarea
+        id="inputText"
+        rows="8"
+        placeholder="Escribe aquí el texto que quieres mejorar..."
+      ></textarea>
+
+      <button id="rewriteBtn" type="button">Reescribir</button>
+
+      <section class="result-box">
+        <h2>Resultado</h2>
+        <pre id="resultText">Aquí aparecerá el resultado.</pre>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
