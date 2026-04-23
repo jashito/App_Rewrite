@@ -9,16 +9,51 @@
   <body>
     <main class="container">
       <h1>Redactor Pro</h1>
-      <p class="subtitle">Prueba rápida del endpoint <code>POST /rewrite</code>.</p>
+      <p class="subtitle">Prueba rápida del endpoint <code>POST /rewrite</code> con una interfaz más clara y moderna.</p>
 
-      <label for="inputText">Texto a reescribir</label>
-      <textarea
-        id="inputText"
-        rows="8"
-        placeholder="Escribe aquí el texto que quieres mejorar..."
-      ></textarea>
+      <section class="editor-box">
+        <div class="controls-grid">
+          <div class="control">
+            <label for="writingType">Tipo de escritura</label>
+            <select id="writingType">
+              <option value="">Predeterminado</option>
+              <option value="formal_email">Correo formal</option>
+              <option value="internal_email">Correo interno</option>
+              <option value="technical_report">Reporte técnico</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="tone">Tono</label>
+            <select id="tone">
+              <option value="">Automático</option>
+              <option value="profesional">Profesional</option>
+              <option value="profesional pero cercano">Profesional y cercano</option>
+              <option value="formal">Formal</option>
+              <option value="directo">Directo</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="audience">Audiencia</label>
+            <input
+              id="audience"
+              type="text"
+              placeholder="Ej.: equipo interno, clientes, dirección"
+            />
+          </div>
+        </div>
 
-      <button id="rewriteBtn" type="button">Reescribir</button>
+        <label for="inputText">Texto a reescribir</label>
+        <textarea
+          id="inputText"
+          rows="8"
+          placeholder="Escribe aquí el texto que quieres mejorar..."
+        ></textarea>
+        <div id="suggestionsBox" class="suggestions-box" hidden></div>
+        <p class="input-hint">Sugerencia rápida: usa <code>Tab</code> para autocompletar la primera palabra sugerida.</p>
+        <div class="actions">
+          <button id="rewriteBtn" type="button">Reescribir</button>
+        </div>
+      </section>
 
       <section class="result-box">
         <h2>Resultado</h2>

@@ -1,6 +1,6 @@
 export const defaultRewritePromptConfig = {
   locale: "español latino",
-  tone: "profesional pero natural",
+  tone: "profesional de alto nivel, preciso y sobrio",
   audience: "equipo corporativo general",
   style: {
     direct: true,
@@ -9,7 +9,8 @@ export const defaultRewritePromptConfig = {
     noForcedClosings: true,
     variedSentenceStructure: true,
     avoidRepetitivePatterns: true,
-    specificAndConcreteLanguage: true
+    specificAndConcreteLanguage: true,
+    preserveOriginalFormatWithoutInventedSections: true
   },
   bannedPatterns: [
     "Como modelo de lenguaje",
@@ -25,11 +26,12 @@ export const writingTypeProfiles = {
     label: "email formal",
     tone: "formal, claro y diplomático",
     structure:
-      "Asunto implícito claro, contexto breve, solicitud/decisión concreta y cierre profesional breve.",
+      "Contexto breve, solicitud/decisión concreta y siguientes pasos. No agregar secciones no presentes en el texto original.",
     styleGuidelines: [
       "Usa tratamiento respetuoso y lenguaje institucional.",
       "Evita coloquialismos y ambiguedades.",
-      "Prioriza precisión en plazos, responsables y próximos pasos."
+      "Prioriza precisión en plazos, responsables y próximos pasos.",
+      "No inventes asunto, saludo ni despedida si no están explícitos en el texto de entrada."
     ]
   },
   internal_email: {
@@ -95,6 +97,11 @@ export function buildRewriteSystemPrompt(customConfig = {}) {
     styleRules.push("Prioriza lenguaje concreto y específico; evita redacción genérica y abstracta.");
   }
 
+  if (config.style.preserveOriginalFormatWithoutInventedSections) {
+    styleRules.push("No inventes secciones ni etiquetas (por ejemplo: 'Asunto:', saludos de apertura o cierres de firma) si no aparecen en el texto original.");
+    styleRules.push("Conserva el formato base del texto: si no hay asunto o encabezado, no los agregues.");
+  }
+
   const bannedPatternsRule = config.bannedPatterns.length
     ? `Evita estas frases o variantes: ${config.bannedPatterns.join(", ")}.`
     : "";
@@ -121,6 +128,8 @@ Objetivo:
 - Considerar esta audiencia: ${audience || defaultRewritePromptConfig.audience}.
 - Evitar salida genérica y plantillas típicas de IA.
 - Escribir como lo haría una persona en un entorno corporativo real.
+- No inventar asunto, saludo protocolario ni despedida cuando el texto original no los incluya.
+- Mantener el tratamiento original de destinatarios (sin reemplazar por fórmulas como "Estimado/a" salvo que ya exista).
 
 Texto original:
 """

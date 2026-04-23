@@ -63,14 +63,15 @@ App_Rewrite/
 - Graceful shutdown (SIGINT/SIGTERM)
 
 ## 🚧 Trabajo de la Última Sesión
-- Se validó el arranque en local y se detectó error `EMFILE` al usar `npm run dev` (`node --watch`) en este entorno.
-- Se confirmó que `npm start` inicia correctamente el servidor en `:3000` para pruebas manuales.
-- Se actualizó el branding de la interfaz web: `Redactor Corporativo` → `Redactor Pro`.
+- Se estabilizó el backend en local dejando una sola instancia activa en `:3000` para evitar falsos errores en pruebas de UI/API.
+- Se mejoró el manejo de errores de Gemini para el caso de alta demanda (`503` / `UNAVAILABLE`) con mensaje amigable en vez de JSON crudo.
+- Se inició el **Camino A** de afinamiento visual (sin migrar stack): rediseño de interfaz vanilla inspirado en patrones de `shadcn/ui`.
+- Se actualizaron estados visuales del resultado (`loading`, `error`, `success`) para mejor feedback al usuario.
 - Archivos impactados hoy:
-  - `public/index.html` (cambio de `<title>` y `<h1>`)
-  - `src/config/env.js` (ajustes previos de soporte Doppler)
-  - `src/services/gemini.client.js` (ajustes previos de manejo de cliente null)
-  - `src/services/rewrite.service.js` (ajustes previos de validación del cliente)
+  - `public/index.html` (estructura visual estilo card + secciones)
+  - `public/styles.css` (tema, spacing, componentes y estados)
+  - `public/app.js` (clases de estado para resultado)
+  - `src/services/rewrite.service.js` (manejo de `UNAVAILABLE` / alta demanda)
 
 ## 🔜 Próximos Pasos
 - [Por confirmar] Agregar más tests unitarios
@@ -97,7 +98,7 @@ App_Rewrite/
 - `DOPPLER_CONFIG` - Presente cuando corre en Doppler [opcional]
 
 ## 🔗 Referencias Útiles
-- [Por completar por el developer]
+- shadcn/ui (referencia visual de componentes): https://ui.shadcn.com/
 
 ## 📝 Notas Adicionales
 - El `.env` contiene API key sensitiva y NO debe subirse a git (ya está en .gitignore)
@@ -106,6 +107,7 @@ App_Rewrite/
 - El servidor corre en puerto 3000 por defecto
 - Para desarrollo: `npm run dev` (con --watch), pero en este equipo puede fallar por `EMFILE`.
 - Si falla el watch, usar temporalmente `npm start` para pruebas de la API/UI.
+- UI actual en Camino A: mejoras visuales en vanilla (sin React/Tailwind por ahora).
 
 ---
 

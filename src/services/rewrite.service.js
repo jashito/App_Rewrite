@@ -122,9 +122,23 @@ async function callGemini(payload) {
   try {
     return await geminiClient.models.generateContent(payload);
   } catch (error) {
+    const rawMessage = String(error?.message || "");
+    const geminiErrorPayload = parseGeminiErrorPayload(rawMessage);
+    const geminiStatus = geminiErrorPayload?.error?.status;
+    const geminiCode = geminiErrorPayload?.error?.code;
+    const geminiMessage = String(geminiErrorPayload?.error?.message || "");
     const dnsFailure =
       error?.cause?.code === "ENOTFOUND" ||
       String(error?.cause?.message || "").includes("ENOTFOUND");
+    const highDemandFailure =
+      geminiStatus === "UNAVAILABLE" ||
+      geminiCode === 503 ||
+      geminiMessage.toLowerCase().includes("high demand");
+    const quotaExceededFailure =
+      geminiStatus === "RESOURCE_EXHAUSTED" ||
+      geminiCode === 429 ||
+      geminiMessage.toLowerCase().includes("quota exceeded") ||
+      geminiMessage.toLowerCase().includes("exceeded your current quota");
 
     if (dnsFailure) {
       throw new HttpError(
@@ -133,6 +147,57 @@ async function callGemini(payload) {
       );
     }
 
-    throw new HttpError(502, `Error al conectar con Gemini: ${error.message}`);
+    if (highDemandFailure) {
+      throw new HttpError(
+        503,
+        "Gemini esta con alta demanda temporal. Intenta nuevamente en unos segundos."
+      );
+    }
+
+    if (quotaExceededFailure) {
+      const retrySeconds = extractRetrySeconds(rawMessage, geminiErrorPayload);
+      const retryHint = retrySeconds
+        ? ` Intenta nuevamente en aproximadamente ${retrySeconds} segundos.`
+        : " Intenta nuevamente más tarde o revisa los límites/cuota de tu proyecto.";
+
+      throw new HttpError(429, `Se alcanzó la cuota de Gemini.${retryHint}`);
+    }
+
+    throw new HttpError(502, `Error al conectar con Gemini: ${rawMessage}`);
   }
+}
+
+function parseGeminiErrorPayload(message) {
+  const jsonStart = message.indexOf("{");
+
+  if (jsonStart === -1) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(message.slice(jsonStart));
+  } catch {
+    return null;
+  }
+}
+
+function extractRetrySeconds(rawMessage, payload) {
+  const retryFromDetails =
+    payload?.error?.details?.find((detail) => detail?.retryDelay)?.retryDelay || null;
+  if (retryFromDetails) {
+    const parsed = Number.parseInt(String(retryFromDetails).replace(/\D/g, ""), 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  const directSeconds = rawMessage.match(/Please retry in\s+([\d.]+)s/i);
+  if (directSeconds?.[1]) {
+    const parsed = Math.ceil(Number.parseFloat(directSeconds[1]));
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  return null;
 }
