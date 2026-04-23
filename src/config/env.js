@@ -1,13 +1,10 @@
 import dotenv from "dotenv";
 
-dotenv.config();
+const isDoppler = !!process.env.DOPPLER_CONFIG;
+const isProduction = process.env.NODE_ENV === "production";
 
-const requiredVars = ["GEMINI_API_KEY"];
-
-for (const varName of requiredVars) {
-  if (!process.env[varName]) {
-    throw new Error(`Falta variable de entorno requerida: ${varName}`);
-  }
+if (!isDoppler) {
+  dotenv.config();
 }
 
 const allowedNodeEnvs = ["development", "test", "production"];
@@ -23,9 +20,19 @@ if (!Number.isInteger(parsedPort) || parsedPort <= 0 || parsedPort > 65535) {
   throw new Error("PORT inválido. Debe ser un entero entre 1 y 65535.");
 }
 
+const geminiApiKey = process.env.GEMINI_API_KEY;
+
+if (!geminiApiKey) {
+  if (isProduction) {
+    throw new Error("Falta GEMINI_API_KEY. Configura tus secrets en Doppler.");
+  }
+  console.warn("⚠️  GEMINI_API_KEY no encontrada. Usa Doppler o crea un archivo .env");
+}
+
 export const env = {
   nodeEnv,
   port: parsedPort,
-  geminiApiKey: process.env.GEMINI_API_KEY,
-  geminiModel: process.env.GEMINI_MODEL ?? "gemini-2.5-flash"
+  geminiApiKey,
+  geminiModel: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+  isDoppler
 };

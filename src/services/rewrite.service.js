@@ -115,6 +115,10 @@ export async function refineText({
 export const refineHumanText = refineText;
 
 async function callGemini(payload) {
+  if (!geminiClient) {
+    throw new HttpError(503, "Gemini no está configurado. Usa Doppler o configura GEMINI_API_KEY.");
+  }
+
   try {
     return await geminiClient.models.generateContent(payload);
   } catch (error) {

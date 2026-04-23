@@ -63,10 +63,14 @@ App_Rewrite/
 - Graceful shutdown (SIGINT/SIGTERM)
 
 ## 🚧 Trabajo de la Última Sesión
-- **[Por completar por el developer]**
-- Se integró soporte para Doppler en `src/config/env.js`
-- Se modificó `src/services/gemini.client.js` para manejar cliente null
-- Se modificó `src/services/rewrite.service.js` para validar cliente before usar
+- Se validó el arranque en local y se detectó error `EMFILE` al usar `npm run dev` (`node --watch`) en este entorno.
+- Se confirmó que `npm start` inicia correctamente el servidor en `:3000` para pruebas manuales.
+- Se actualizó el branding de la interfaz web: `Redactor Corporativo` → `Redactor Pro`.
+- Archivos impactados hoy:
+  - `public/index.html` (cambio de `<title>` y `<h1>`)
+  - `src/config/env.js` (ajustes previos de soporte Doppler)
+  - `src/services/gemini.client.js` (ajustes previos de manejo de cliente null)
+  - `src/services/rewrite.service.js` (ajustes previos de validación del cliente)
 
 ## 🔜 Próximos Pasos
 - [Por confirmar] Agregar más tests unitarios
@@ -75,7 +79,8 @@ App_Rewrite/
 - [Por confirmar] Implementar autenticación si se expondrá públicamente
 
 ## 🐛 Problemas Conocidos / Bugs Activos
-- Ninguno conocido actualmente. La app funciona correctamente.
+- En este entorno, `npm run dev` puede fallar con `EMFILE: too many open files, watch` por el watcher de Node.
+- Workaround actual: usar `npm start` para ejecutar y probar la app sin watch.
 
 ## 📐 Convenciones del Proyecto
 - **Naming:** camelCase para variables y funciones, PascalCase para clases
@@ -99,7 +104,8 @@ App_Rewrite/
 - Para desarrollo local: `cp .env.example .env` y completar API key
 - Para producción con Doppler: `doppler run -- npm start`
 - El servidor corre en puerto 3000 por defecto
-- Para desarrollo: `npm run dev` (con --watch)
+- Para desarrollo: `npm run dev` (con --watch), pero en este equipo puede fallar por `EMFILE`.
+- Si falla el watch, usar temporalmente `npm start` para pruebas de la API/UI.
 
 ---
 
